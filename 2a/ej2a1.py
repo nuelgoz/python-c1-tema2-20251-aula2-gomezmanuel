@@ -34,6 +34,7 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
         # 3. Si la ruta es cualquier otra, envía una respuesta 404
         pass
 
+
 def create_server(host="localhost", port=8000):
     """
     Crea y configura el servidor HTTP

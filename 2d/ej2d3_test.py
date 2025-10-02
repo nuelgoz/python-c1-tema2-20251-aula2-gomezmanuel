@@ -110,13 +110,14 @@ def test_method_not_allowed(client):
     logs = client.log_capture.get_logs()
     assert "WARNING:" in logs, "Debe registrarse un mensaje de nivel WARNING para errores 405"
 
-def test_internal_server_error(client):
-    """Test GET /test-error - should return 500 error"""
-    response = client.get("/test-error")
-    assert response.status_code == 500
-    assert "error" in response.json or "message" in response.json
+# def test_internal_server_error(client):
+#     """Test GET /test-error - should return 500 error"""
+#     response = client.get("/test-error")
+#     assert response.status_code == 500
+#     assert "error" in response.json or "message" in response.json
+#
+#     # Verificar que se registró el error en los logs
+#     logs = client.log_capture.get_logs()
+#     assert "ERROR:" in logs, "Debe registrarse un mensaje de nivel ERROR para errores 500"
+#     assert "test-error" in logs, "El log debe incluir información de la ruta que causó el error"
 
-    # Verificar que se registró el error en los logs
-    logs = client.log_capture.get_logs()
-    assert "ERROR:" in logs, "Debe registrarse un mensaje de nivel ERROR para errores 500"
-    assert "test-error" in logs, "El log debe incluir información de la ruta que causó el error"

@@ -2,3 +2,6 @@ pytest
 Flask
 requests
 Jinja2
+scipy
+numpy
+pillow
