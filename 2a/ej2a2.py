@@ -41,13 +41,34 @@ class ProductAPIHandler(BaseHTTPRequestHandler):
         Debes implementar la lógica para responder a la petición GET en la ruta /product/<id>
         con los datos del producto en formato JSON si existe, o un error 404 si no existe.
         """
-        # Implementa aquí la lógica para responder a las peticiones GET
-        # 1. Usa una expresión regular para verificar si la ruta coincide con /product/<id>
-        # 2. Si coincide, extrae el ID del producto de la ruta
-        # 3. Busca el producto en la lista
-        # 4. Si el producto existe, devuélvelo en formato JSON con código 200
-        # 5. Si el producto no existe, devuelve un mensaje de error con código 404
-        pass
+        # Verificar si la ruta coincide con el patrón /product/<id>
+        match = re.match(r'/product/(\d+)', self.path)
+        
+        if match:
+            # Extraer el ID del producto de la ruta
+            product_id = int(match.group(1))
+            
+            # Buscar el producto en la lista
+            product = next((p for p in products if p["id"] == product_id), None)
+            
+            if product:
+                # Producto encontrado - devolver con código 200
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps(product).encode())
+            else:
+                # Producto no encontrado - devolver error 404
+                self.send_response(404)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": "Producto no encontrado"}).encode())
+        else:
+            # Ruta no válida - devolver error 404
+            self.send_response(404)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": "Ruta no válida"}).encode())
 
 def create_server(host="localhost", port=8000):
     """
