@@ -59,15 +59,56 @@ class ProductAPIHandler(BaseHTTPRequestHandler):
         Debes implementar la lógica para responder a la petición GET en la ruta /product/<id>
         con los datos del producto en formato XML si existe, o un error 404 si no existe.
         """
-        # Implementa aquí la lógica para responder a las peticiones GET
         # 1. Usa una expresión regular para verificar si la ruta coincide con /product/<id>
-        # 2. Si coincide, extrae el ID del producto de la ruta
-        # 3. Busca el producto en la lista
-        # 4. Si el producto existe:
-        #    a. Convierte el producto a XML usando dict_to_xml y prettify
-        #    b. Devuelve el XML con código 200 y Content-Type application/xml
-        # 5. Si el producto no existe, devuelve un mensaje de error XML con código 404
-        pass
+        path_regex = r'^/product/(\d+)$'
+        match = re.match(path_regex, self.path)
+        
+        if match:
+            # 2. Si coincide, extrae el ID del producto de la ruta
+            product_id = int(match.group(1))
+            
+            # 3. Busca el producto en la lista
+            product = None
+            for prod in products:
+                if prod['id'] == product_id:
+                    product = prod
+                    break
+            
+            if product:
+                # 4. Si el producto existe:
+                #    a. Convierte el producto a XML usando dict_to_xml y prettify
+                product_element = dict_to_xml('product', product)
+                xml_response = prettify(product_element)
+                
+                #    b. Devuelve el XML con código 200 y Content-Type application/xml
+                self.send_response(200)
+                self.send_header('Content-type', 'application/xml')
+                self.end_headers()
+                self.wfile.write(xml_response)
+            else:
+                # 5. Si el producto no existe, devuelve un mensaje de error XML con código 404
+                error_elem = ET.Element('error')
+                message_elem = ET.SubElement(error_elem, 'message')
+                message_elem.text = f'Product with id {product_id} not found'
+                
+                xml_response = prettify(error_elem)
+                
+                self.send_response(404)
+                self.send_header('Content-type', 'application/xml')
+                self.end_headers()
+                self.wfile.write(xml_response)
+        else:
+            # Ruta no válida
+            self.send_response(404)
+            self.send_header('Content-type', 'application/xml')
+            self.end_headers()
+            
+            error_elem = ET.Element('error')
+            message_elem = ET.SubElement(error_elem, 'message')
+            message_elem.text = 'Not found'
+            
+            xml_response = prettify(error_elem)
+            self.wfile.write(xml_response)
 
 def create_server(host="localhost", port=8000):
     """

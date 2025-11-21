@@ -22,6 +22,9 @@ def create_app():
     app = Flask(__name__)
 
     # Aquí debes implementar el endpoint solicitado
+    @app.route('/')
+    def hello():
+        return "¡Hola mundo!"
 
     return app
 

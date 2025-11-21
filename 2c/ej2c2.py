@@ -46,7 +46,7 @@ def create_app():
         Devuelve la lista completa de tareas
         """
         # Implementa este endpoint
-        pass
+        return jsonify(tasks)
 
     @app.route('/tasks', methods=['POST'])
     def add_task():
@@ -55,7 +55,20 @@ def create_app():
         El cuerpo de la solicitud debe incluir un JSON con el campo "name"
         """
         # Implementa este endpoint
-        pass
+        global next_id
+        data = request.get_json()
+        
+        if not data or 'name' not in data:
+            return jsonify({"error": "Task name is required"}), 400
+        
+        task = {
+            "id": next_id,
+            "name": data["name"]
+        }
+        tasks.append(task)
+        next_id += 1
+        
+        return jsonify(task), 201
 
     @app.route('/tasks/<int:task_id>', methods=['DELETE'])
     def delete_task(task_id):
@@ -63,7 +76,18 @@ def create_app():
         Elimina una tarea específica por su ID
         """
         # Implementa este endpoint
-        pass
+        global tasks
+        task_to_delete = None
+        for task in tasks:
+            if task['id'] == task_id:
+                task_to_delete = task
+                break
+        
+        if task_to_delete is None:
+            return jsonify({"error": f"Task with id {task_id} not found"}), 404
+        
+        tasks = [task for task in tasks if task['id'] != task_id]
+        return jsonify({"message": f"Task with id {task_id} deleted successfully"}), 200
 
     @app.route('/tasks/<int:task_id>', methods=['PUT'])
     def update_task(task_id):
@@ -73,7 +97,22 @@ def create_app():
         Código de estado: 200 - OK si se actualizó, 404 - Not Found si no existe
         """
         # Implementa este endpoint
-        pass
+        data = request.get_json()
+        
+        if not data or 'name' not in data:
+            return jsonify({"error": "Task name is required"}), 400
+        
+        task_to_update = None
+        for task in tasks:
+            if task['id'] == task_id:
+                task_to_update = task
+                break
+        
+        if task_to_update is None:
+            return jsonify({"error": f"Task with id {task_id} not found"}), 404
+        
+        task_to_update['name'] = data['name']
+        return jsonify(task_to_update), 200
 
     return app
 
