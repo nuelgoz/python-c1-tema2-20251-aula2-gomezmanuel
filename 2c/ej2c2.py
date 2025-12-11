@@ -34,13 +34,14 @@ tasks = []
 # Este contador se usará para asignar IDs únicos
 next_id = 1
 
+
 def create_app():
     """
     Crea y configura la aplicación Flask
     """
     app = Flask(__name__)
 
-    @app.route('/tasks', methods=['GET'])
+    @app.route("/tasks", methods=["GET"])
     def get_tasks():
         """
         Devuelve la lista completa de tareas
@@ -48,7 +49,7 @@ def create_app():
         # Implementa este endpoint
         return jsonify(tasks)
 
-    @app.route('/tasks', methods=['POST'])
+    @app.route("/tasks", methods=["POST"])
     def add_task():
         """
         Agrega una nueva tarea
@@ -57,20 +58,17 @@ def create_app():
         # Implementa este endpoint
         global next_id
         data = request.get_json()
-        
-        if not data or 'name' not in data:
+
+        if not data or "name" not in data:
             return jsonify({"error": "Task name is required"}), 400
-        
-        task = {
-            "id": next_id,
-            "name": data["name"]
-        }
+
+        task = {"id": next_id, "name": data["name"]}
         tasks.append(task)
         next_id += 1
-        
+
         return jsonify(task), 201
 
-    @app.route('/tasks/<int:task_id>', methods=['DELETE'])
+    @app.route("/tasks/<int:task_id>", methods=["DELETE"])
     def delete_task(task_id):
         """
         Elimina una tarea específica por su ID
@@ -79,17 +77,17 @@ def create_app():
         global tasks
         task_to_delete = None
         for task in tasks:
-            if task['id'] == task_id:
+            if task["id"] == task_id:
                 task_to_delete = task
                 break
-        
-        if task_to_delete is None:
-            return jsonify({"error": f"Task with id {task_id} not found"}), 404
-        
-        tasks = [task for task in tasks if task['id'] != task_id]
-        return jsonify({"message": f"Task with id {task_id} deleted successfully"}), 200
 
-    @app.route('/tasks/<int:task_id>', methods=['PUT'])
+        if task_to_delete is None:
+            return jsonify({"error": "Task not found"}), 404
+
+        tasks = [task for task in tasks if task["id"] != task_id]
+        return jsonify({"message": "Task deleted"}), 200
+
+    @app.route("/tasks/<int:task_id>", methods=["PUT"])
     def update_task(task_id):
         """
         Actualiza el nombre de una tarea existente por su ID
@@ -98,24 +96,25 @@ def create_app():
         """
         # Implementa este endpoint
         data = request.get_json()
-        
-        if not data or 'name' not in data:
+
+        if not data or "name" not in data:
             return jsonify({"error": "Task name is required"}), 400
-        
+
         task_to_update = None
         for task in tasks:
-            if task['id'] == task_id:
+            if task["id"] == task_id:
                 task_to_update = task
                 break
-        
+
         if task_to_update is None:
-            return jsonify({"error": f"Task with id {task_id} not found"}), 404
-        
-        task_to_update['name'] = data['name']
+            return jsonify({"error": "Task not found"}), 404
+
+        task_to_update["name"] = data["name"]
         return jsonify(task_to_update), 200
 
     return app
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app = create_app()
     app.run(debug=True)
