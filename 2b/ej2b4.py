@@ -21,10 +21,12 @@ TEMPLATE = """
     <title>Greeting Page</title>
 </head>
 <body>
-    <h1>¡Hola, {{ nombre }}!</h1>
+    {% set nombre = nombre %}
+    <h1>¡hola, {{ nombre }}!</h1>
 </body>
 </html>
 """
+
 
 def create_app():
     """
@@ -32,7 +34,7 @@ def create_app():
     """
     app = Flask(__name__)
 
-    @app.route('/greet/<nombre>', methods=['GET'])
+    @app.route("/greet/<nombre>", methods=["GET"])
     def greet(nombre):
         """
         Devuelve una página web que saluda al usuario utilizando una plantilla Jinja2
@@ -42,6 +44,7 @@ def create_app():
 
     return app
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app = create_app()
     app.run(debug=True)
