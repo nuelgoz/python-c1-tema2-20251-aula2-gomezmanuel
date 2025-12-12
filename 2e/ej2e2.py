@@ -35,9 +35,11 @@ Esta actividad te enseñará cómo configurar correctamente los tipos de conteni
 una habilidad esencial para el desarrollo de APIs y servicios web que manejan diferentes formatos de datos.
 """
 
-from flask import Flask, jsonify, Response, send_file, make_response
-import os
 import io
+import os
+
+from flask import Flask, Response, jsonify, make_response, send_file
+
 
 def create_app():
     """
@@ -45,59 +47,70 @@ def create_app():
     """
     app = Flask(__name__)
 
-    @app.route('/text', methods=['GET'])
+    @app.route("/text", methods=["GET"])
     def get_text():
         """
         Devuelve un texto plano con el tipo MIME `text/plain`
         """
-        # Implementa este endpoint para devolver el contenido solicitado
-        pass
+        return Response("Este es un texto plano", content_type="text/plain")
 
-    @app.route('/html', methods=['GET'])
+    @app.route("/html", methods=["GET"])
     def get_html():
         """
         Devuelve un fragmento HTML con el tipo MIME `text/html`
         """
-        # Implementa este endpoint para devolver el contenido solicitado
-        pass
+        return Response("<h1>Este es un fragmento HTML</h1>", content_type="text/html")
 
-    @app.route('/json', methods=['GET'])
+    @app.route("/json", methods=["GET"])
     def get_json():
         """
         Devuelve un objeto JSON con el tipo MIME `application/json`
         """
-        # Implementa este endpoint para devolver el contenido solicitado
-        pass
+        return Response(
+            '{"mensaje": "Este es un objeto JSON"}', content_type="application/json"
+        )
 
-    @app.route('/xml', methods=['GET'])
+    @app.route("/xml", methods=["GET"])
     def get_xml():
         """
         Devuelve un documento XML con el tipo MIME `application/xml`
         """
-        # Implementa este endpoint para devolver el contenido solicitado
-        pass
+        return Response(
+            "<mensaje>Este es un documento XML</mensaje>",
+            content_type="application/xml",
+        )
 
-    @app.route('/image', methods=['GET'])
+    @app.route("/image", methods=["GET"])
     def get_image():
         """
         Devuelve una imagen con el tipo MIME `image/png`
         """
-        # Implementa este endpoint para devolver el contenido solicitado
-        # Sugerencia: Puedes usar send_file para enviar una imagen
-        pass
+        # Crear una imagen PNG simple en memoria
+        import base64
 
-    @app.route('/binary', methods=['GET'])
+        # PNG mínimo válido (1x1 píxel transparente)
+        png_data = base64.b64decode(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
+        )
+
+        return Response(png_data, content_type="image/png")
+
+    @app.route("/binary", methods=["GET"])
     def get_binary():
         """
         Devuelve datos binarios genéricos con el tipo MIME `application/octet-stream`
         Para este ejemplo, puedes crear unos bytes aleatorios o un archivo binario simple
         """
-        # Implementa este endpoint para devolver el contenido solicitado
-        # Sugerencia: Puedes usar os.urandom() para generar datos aleatorios
-        pass
+        # Generar datos binarios aleatorios
+        binary_data = os.urandom(1024)  # 1KB de datos aleatorios
+
+        response = Response(binary_data, content_type="application/octet-stream")
+        response.headers["Content-Disposition"] = "attachment; filename=datos.bin"
+        return response
 
     return app
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app = create_app()
     app.run(debug=True)
