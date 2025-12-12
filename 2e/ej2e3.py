@@ -34,8 +34,10 @@ Esta actividad te enseñará cómo recibir y manejar diferentes tipos de datos e
 una habilidad esencial para desarrollar APIs web que interactúan con diversos clientes.
 """
 
-from flask import Flask, jsonify, request, Response
 import os
+
+from flask import Flask, Response, jsonify, request
+
 
 def create_app():
     """
@@ -44,10 +46,10 @@ def create_app():
     app = Flask(__name__)
 
     # Crear un directorio para guardar archivos subidos si no existe
-    uploads_dir = os.path.join(app.instance_path, 'uploads')
+    uploads_dir = os.path.join(app.instance_path, "uploads")
     os.makedirs(uploads_dir, exist_ok=True)
 
-    @app.route('/text', methods=['POST'])
+    @app.route("/text", methods=["POST"])
     def post_text():
         """
         Recibe un texto plano con el tipo MIME `text/plain` y lo devuelve en la respuesta.
@@ -56,9 +58,12 @@ def create_app():
         # 1. Verifica que el Content-Type sea text/plain
         # 2. Lee el contenido de la solicitud usando request.data
         # 3. Devuelve el mismo texto con Content-Type text/plain
-        pass
 
-    @app.route('/html', methods=['POST'])
+        # Obtener el contenido de texto
+        text_data = request.data.decode("utf-8")
+        return Response(text_data, content_type="text/plain")
+
+    @app.route("/html", methods=["POST"])
     def post_html():
         """
         Recibe un fragmento HTML con el tipo MIME `text/html` y lo devuelve en la respuesta.
@@ -67,9 +72,12 @@ def create_app():
         # 1. Verifica que el Content-Type sea text/html
         # 2. Lee el contenido de la solicitud
         # 3. Devuelve el mismo HTML con Content-Type text/html
-        pass
 
-    @app.route('/json', methods=['POST'])
+        # Obtener el contenido HTML
+        html_data = request.data.decode("utf-8")
+        return Response(html_data, content_type="text/html")
+
+    @app.route("/json", methods=["POST"])
     def post_json():
         """
         Recibe un objeto JSON con el tipo MIME `application/json` y lo devuelve en la respuesta.
@@ -77,9 +85,12 @@ def create_app():
         # Implementa este endpoint:
         # 1. Accede al contenido JSON usando request.get_json()
         # 2. Devuelve el mismo objeto JSON usando jsonify()
-        pass
 
-    @app.route('/xml', methods=['POST'])
+        # Obtener y devolver JSON
+        json_data = request.get_json()
+        return jsonify(json_data)
+
+    @app.route("/xml", methods=["POST"])
     def post_xml():
         """
         Recibe un documento XML con el tipo MIME `application/xml` y lo devuelve en la respuesta.
@@ -88,9 +99,12 @@ def create_app():
         # 1. Verifica que el Content-Type sea application/xml
         # 2. Lee el contenido XML de la solicitud
         # 3. Devuelve el mismo XML con Content-Type application/xml
-        pass
 
-    @app.route('/image', methods=['POST'])
+        # Obtener el contenido XML
+        xml_data = request.data.decode("utf-8")
+        return Response(xml_data, content_type="application/xml")
+
+    @app.route("/image", methods=["POST"])
     def post_image():
         """
         Recibe una imagen con el tipo MIME `image/png` o `image/jpeg` y la guarda en el servidor.
@@ -100,9 +114,34 @@ def create_app():
         # 2. Lee los datos binarios de la imagen
         # 3. Guarda la imagen en el directorio 'uploads' con un nombre único
         # 4. Devuelve una confirmación con el nombre del archivo guardado
-        pass
 
-    @app.route('/binary', methods=['POST'])
+        import uuid
+
+        # Obtener datos de la imagen
+        image_data = request.data
+
+        # Verificar que hay datos de imagen
+        if not image_data:
+            return jsonify({"error": "No se recibieron datos de imagen"}), 400
+
+        # Generar nombre único para el archivo
+        filename = f"image_{uuid.uuid4().hex}.png"
+        filepath = os.path.join(uploads_dir, filename)
+
+        # Guardar la imagen
+        with open(filepath, "wb") as f:
+            f.write(image_data)
+
+        # Devolver confirmación
+        return jsonify(
+            {
+                "mensaje": "Imagen guardada correctamente",
+                "archivo": filename,
+                "ruta": filepath,
+            }
+        )
+
+    @app.route("/binary", methods=["POST"])
     def post_binary():
         """
         Recibe datos binarios con el tipo MIME `application/octet-stream` y confirma su recepción.
@@ -112,10 +151,32 @@ def create_app():
         # 2. Lee los datos binarios de la solicitud
         # 3. Guarda los datos en un archivo o simplemente verifica su tamaño
         # 4. Devuelve una confirmación con información sobre los datos recibidos
-        pass
+
+        # Obtener datos binarios
+        binary_data = request.data
+
+        # Verificar que es application/octet-stream
+        content_type = request.content_type
+        if content_type != "application/octet-stream":
+            return jsonify(
+                {"error": "Content-Type debe ser application/octet-stream"}
+            ), 400
+
+        # Obtener tamaño de los datos
+        tamaño = len(binary_data)
+
+        # Devolver confirmación con información
+        return jsonify(
+            {
+                "mensaje": "Datos binarios recibidos correctamente",
+                "tamaño": tamaño,
+                "content_type": content_type,
+            }
+        )
 
     return app
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app = create_app()
     app.run(debug=True)
