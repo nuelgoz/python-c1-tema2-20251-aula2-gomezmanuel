@@ -1,6 +1,7 @@
 import pytest
-from flask.testing import FlaskClient
 from ej2f1 import create_app
+from flask.testing import FlaskClient
+
 
 @pytest.fixture
 def client() -> FlaskClient:
@@ -8,6 +9,7 @@ def client() -> FlaskClient:
     app.testing = True
     with app.test_client() as client:
         yield client
+
 
 def test_main_home_route(client):
     """
@@ -17,10 +19,12 @@ def test_main_home_route(client):
     response = client.get("/api/v1/")
     assert response.status_code == 200, "El código de estado debe ser 200"
     assert response.data, "La respuesta debe contener datos"
-    assert b"Bienvenida" in response.data.lower() or \
-           b"Benvinguda" in response.data.lower() or \
-           b"Welcome" in response.data.lower(), \
-           "La respuesta debe contener un mensaje de bienvenida"
+    assert (
+        b"bienvenida" in response.data.lower()
+        or b"benvinguda" in response.data.lower()
+        or b"welcome" in response.data.lower()
+    ), "La respuesta debe contener un mensaje de bienvenida"
+
 
 def test_main_about_route(client):
     """
@@ -30,8 +34,10 @@ def test_main_about_route(client):
     response = client.get("/api/v1/about")
     assert response.status_code == 200, "El código de estado debe ser 200"
     assert response.data, "La respuesta debe contener datos"
-    assert b"aplicaci" in response.data.lower() or b"app" in response.data.lower(), \
-           "La respuesta debe contener información sobre la aplicación"
+    assert b"aplicaci" in response.data.lower() or b"app" in response.data.lower(), (
+        "La respuesta debe contener información sobre la aplicación"
+    )
+
 
 def test_user_profile_route(client):
     """
@@ -42,8 +48,10 @@ def test_user_profile_route(client):
     response = client.get(f"/api/v1/user/profile/{username}")
     assert response.status_code == 200, "El código de estado debe ser 200"
     assert response.data, "La respuesta debe contener datos"
-    assert username.encode() in response.data.lower(), \
-           "La respuesta debe contener el nombre de usuario proporcionado"
+    assert username.encode() in response.data.lower(), (
+        "La respuesta debe contener el nombre de usuario proporcionado"
+    )
+
 
 def test_user_list_route(client):
     """
@@ -53,8 +61,10 @@ def test_user_list_route(client):
     response = client.get("/api/v1/user/list")
     assert response.status_code == 200, "El código de estado debe ser 200"
     assert response.data, "La respuesta debe contener datos"
-    assert b"user" in response.data.lower(), \
-           "La respuesta debe contener información sobre usuarios"
+    assert b"user" in response.data.lower(), (
+        "La respuesta debe contener información sobre usuarios"
+    )
+
 
 def test_url_prefix(client):
     """
@@ -63,11 +73,16 @@ def test_url_prefix(client):
     """
     # La ruta sin prefijo no debe funcionar
     response_no_prefix = client.get("/")
-    assert response_no_prefix.status_code == 404, "La ruta sin prefijo no debe ser accesible"
+    assert response_no_prefix.status_code == 404, (
+        "La ruta sin prefijo no debe ser accesible"
+    )
 
     # La ruta con prefijo debe funcionar
     response_with_prefix = client.get("/api/v1/")
-    assert response_with_prefix.status_code == 200, "La ruta con prefijo debe ser accesible"
+    assert response_with_prefix.status_code == 200, (
+        "La ruta con prefijo debe ser accesible"
+    )
+
 
 def test_blueprint_structure(client):
     """
